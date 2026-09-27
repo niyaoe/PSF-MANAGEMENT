@@ -16,7 +16,7 @@ const login = async (req, res) => {
 
         const user = await User.findOne({
             email: email.toLowerCase()
-        }).populate("branchId", "name code");
+        }).populate("branchIds", "name code");
 
         if (!user) {
             return res.status(401).json({
@@ -45,7 +45,9 @@ const login = async (req, res) => {
             {
                 userId: user._id,
                 role: user.role,
-                branchId: user.branchId?._id || null
+                branchIds: user.branchIds.map(
+                    (branch) => branch._id
+                )
             },
             process.env.JWT_SECRET,
             {
@@ -63,13 +65,12 @@ const login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                branch: user.branchId
-                    ? {
-                          id: user.branchId._id,
-                          name: user.branchId.name,
-                          code: user.branchId.code
-                      }
-                    : null
+
+                branches: user.branchIds.map((branch) => ({
+                    id: branch._id,
+                    name: branch.name,
+                    code: branch.code
+                }))
             }
         });
     } catch (error) {

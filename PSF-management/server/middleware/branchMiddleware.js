@@ -10,14 +10,18 @@ const enforceBranchAccess = (req, res, next) => {
         return next();
     }
 
-    // Manager and employee must have a branch.
-    if (!req.user.branchId) {
+    // Manager and employee must have at least one branch.
+    if (
+        !Array.isArray(req.user.branchIds) ||
+        req.user.branchIds.length === 0
+    ) {
         return res.status(403).json({
-            message: "No branch assigned to this user"
+            message: "No branches assigned to this user"
         });
     }
 
-    req.branchId = req.user.branchId;
+    // Store the user's allowed branches.
+    req.branchIds = req.user.branchIds;
 
     next();
 };

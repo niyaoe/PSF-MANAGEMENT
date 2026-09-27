@@ -3,9 +3,12 @@ const cors = require("cors");
 require("dotenv").config();
 
 const connectDB = require("./config/db");
+
 const authRoutes = require("./routes/authRoutes");
 const branchRoutes = require("./routes/branchRoutes");
 const userRoutes = require("./routes/userRoutes");
+const psfRoutes = require("./routes/psfRoutes");
+const importRoutes = require("./routes/importRoutes");
 
 const app = express();
 
@@ -17,10 +20,12 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/psf", psfRoutes);
+app.use("/api/import", importRoutes);
 
 app.get("/", (req, res) => {
     res.json({
-        message: "PSF Management API is running"
+        message: "ERAM MOTORS PSF Management API is running"
     });
 });
 

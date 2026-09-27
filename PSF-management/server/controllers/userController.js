@@ -10,7 +10,7 @@ const createUser = async (req, res) => {
             email,
             password,
             role,
-            branchId
+            branchIds
         } = req.body;
 
         if (!name || !email || !password || !role) {
@@ -25,17 +25,24 @@ const createUser = async (req, res) => {
             });
         }
 
-        if (!branchId) {
+        if (!Array.isArray(branchIds) || branchIds.length === 0) {
             return res.status(400).json({
-                message: "Branch is required"
+                message: "At least one branch is required"
             });
         }
 
-        const branch = await Branch.findById(branchId);
+        const uniqueBranchIds = [
+            ...new Set(branchIds)
+        ];
 
-        if (!branch || !branch.isActive) {
+        const branches = await Branch.find({
+            _id: { $in: uniqueBranchIds },
+            isActive: true
+        });
+
+        if (branches.length !== uniqueBranchIds.length) {
             return res.status(400).json({
-                message: "Invalid or inactive branch"
+                message: "One or more branches are invalid or inactive"
             });
         }
 
@@ -49,20 +56,23 @@ const createUser = async (req, res) => {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(
+            password,
+            10
+        );
 
         const user = await User.create({
             name,
             email: email.toLowerCase(),
             password: hashedPassword,
             role,
-            branchId,
+            branchIds: uniqueBranchIds,
             isActive: true
         });
 
         const userResponse = await User.findById(user._id)
             .select("-password")
-            .populate("branchId", "name code");
+            .populate("branchIds", "name code");
 
         res.status(201).json({
             message: `${role} created successfully`,
