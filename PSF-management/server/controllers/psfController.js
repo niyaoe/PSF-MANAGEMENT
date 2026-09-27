@@ -6,13 +6,18 @@ const getPSFRecords = async (req, res) => {
 
         // Admin can access all branches.
         if (req.user.role !== "admin") {
-            if (!req.user.branchId) {
+            if (
+                !Array.isArray(req.user.branchIds) ||
+                req.user.branchIds.length === 0
+            ) {
                 return res.status(403).json({
-                    message: "No branch assigned to this user"
+                    message: "No branches assigned to this user"
                 });
             }
 
-            filter.branchId = req.user.branchId;
+            filter.branchId = {
+                $in: req.user.branchIds
+            };
         }
 
         const records = await PSFRecord.find(filter)
