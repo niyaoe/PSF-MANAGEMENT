@@ -1,5 +1,6 @@
 const XLSX = require("xlsx");
 const Branch = require("../models/Branch");
+const PSFRecord = require("../models/PSFRecord");
 
 const EXPECTED_HEADERS = [
   "Sl",
@@ -136,7 +137,11 @@ const importPSFExcel = async (filePath) => {
     throw new Error(`Missing Excel headers: ${missingHeaders.join(", ")}`);
   }
 
-  const mappedRows = rows.map(mapExcelRow);
+  const mappedRows = rows
+    .filter((row) => {
+      return String(row["Branch"] || "").trim() !== "";
+    })
+    .map(mapExcelRow);
 
   const branches = await Branch.find({
     isActive: true,
@@ -148,11 +153,32 @@ const importPSFExcel = async (filePath) => {
     branchMap.set(branch.name.trim().toLowerCase(), branch._id);
   });
 
-  const rowsWithBranchId = mappedRows.map((row) => {
-    const branchId = branchMap.get(row.branchName.trim().toLowerCase());
+  // Excel branch aliases.
+  // Different Excel names can represent the same actual branch.
+  const branchAliases = {
+    kunnamkulam_sz: "kunnamkulam",
+    kunnamkulam_: "kunnamkulam",
+    kunnamkulam: "kunnamkulam",
+
+    koratty_sz: "koratty",
+    koratty_: "koratty",
+    koratty: "koratty",
+
+    thrissur: "thrissur",
+  };
+
+  const rowsWithBranchId = mappedRows.map((row, index) => {
+    const normalizedBranchName = row.branchName.trim().toLowerCase();
+
+    const branchLookupName =
+      branchAliases[normalizedBranchName] || normalizedBranchName;
+
+    const branchId = branchMap.get(branchLookupName);
 
     if (!branchId) {
-      throw new Error(`Branch not found: "${row.branchName}"`);
+      throw new Error(
+        `Branch not found: "${row.branchName}" at Excel row ${index + 2}`,
+      );
     }
 
     return {
@@ -161,10 +187,35 @@ const importPSFExcel = async (filePath) => {
     };
   });
 
+  const operations = rowsWithBranchId.map((row) => {
+    const { branchName, ...record } = row;
+
+    return {
+      updateOne: {
+        filter: {
+          branchId: record.branchId,
+          roNumber: record.roNumber,
+        },
+        update: {
+          $setOnInsert: {
+            ...record,
+          },
+        },
+        upsert: true,
+      },
+    };
+  });
+
+  const result = await PSFRecord.bulkWrite(operations, {
+    ordered: false,
+  });
+
   return {
     sheetName,
     totalRows: rows.length,
     rows: rowsWithBranchId,
+    insertedCount: result.upsertedCount,
+    matchedCount: result.matchedCount,
   };
 };
 

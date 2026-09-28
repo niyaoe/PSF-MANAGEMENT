@@ -87,6 +87,66 @@ const createUser = async (req, res) => {
     }
 };
 
+const updateUserBranches = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { branchIds } = req.body;
+
+        if (!Array.isArray(branchIds) || branchIds.length === 0) {
+            return res.status(400).json({
+                message: "At least one branch is required"
+            });
+        }
+
+        const uniqueBranchIds = [...new Set(branchIds)];
+
+        const branches = await Branch.find({
+            _id: { $in: uniqueBranchIds },
+            isActive: true
+        });
+
+        if (branches.length !== uniqueBranchIds.length) {
+            return res.status(400).json({
+                message: "One or more branches are invalid or inactive"
+            });
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        if (user.role === "admin") {
+            return res.status(400).json({
+                message: "Admin branch assignment cannot be changed"
+            });
+        }
+
+        user.branchIds = uniqueBranchIds;
+
+        await user.save();
+
+        const updatedUser = await User.findById(user._id)
+            .select("-password")
+            .populate("branchIds", "name code");
+
+        res.json({
+            message: "User branches updated successfully",
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error("Update user branches error:", error);
+
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
+};
+
 module.exports = {
-    createUser
+    createUser,
+    updateUserBranches
 };
