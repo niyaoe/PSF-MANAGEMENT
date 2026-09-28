@@ -1,8 +1,10 @@
 const express = require("express");
 
 const {
-    getPSFRecords
+    getPSFRecords,
+    updatePSFRecord
 } = require("../controllers/psfController");
+
 
 const protect = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
@@ -14,6 +16,13 @@ router.get(
     protect,
     authorizeRoles("admin", "manager", "employee"),
     getPSFRecords
+);
+
+router.put(
+    "/:id",
+    protect,
+    authorizeRoles("admin", "manager", "employee"),
+    updatePSFRecord
 );
 
 module.exports = router;
