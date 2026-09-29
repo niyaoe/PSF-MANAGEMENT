@@ -2,7 +2,8 @@ const express = require("express");
 
 const {
     getPSFRecords,
-    updatePSFRecord
+    updatePSFRecord,
+    getPSFDashboard
 } = require("../controllers/psfController");
 
 
@@ -16,6 +17,13 @@ router.get(
     protect,
     authorizeRoles("admin", "manager", "employee"),
     getPSFRecords
+);
+
+router.get(
+    "/dashboard",
+    protect,
+    authorizeRoles("admin", "manager", "employee"),
+    getPSFDashboard
 );
 
 router.put(

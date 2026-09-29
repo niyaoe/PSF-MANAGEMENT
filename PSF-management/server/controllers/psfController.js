@@ -259,7 +259,26 @@ const getPSFDashboard = async (req, res) => {
      */
 
     if (complaintStatus) {
-      filter.complaintStatus = complaintStatus;
+      if (complaintStatus.toLowerCase() === "open") {
+        filter.$or = [
+          {
+            complaintStatus: "Open",
+          },
+          {
+            complaintStatus: "",
+          },
+          {
+            complaintStatus: null,
+          },
+          {
+            complaintStatus: {
+              $exists: false,
+            },
+          },
+        ];
+      } else {
+        filter.complaintStatus = complaintStatus;
+      }
     }
 
     /*
@@ -317,9 +336,11 @@ const getPSFDashboard = async (req, res) => {
 
     const totalRecords = records.length;
 
-    const openComplaints = records.filter(
-      (record) => record.complaintStatus?.toLowerCase() === "open",
-    ).length;
+    const openComplaints = records.filter((record) => {
+      const status = record.complaintStatus?.trim().toLowerCase();
+
+      return status === "open" || !status;
+    }).length;
 
     const closedComplaints = records.filter(
       (record) => record.complaintStatus?.toLowerCase() === "closed",
@@ -353,7 +374,7 @@ const getPSFDashboard = async (req, res) => {
 };
 
 module.exports = {
-    getPSFRecords,
-    updatePSFRecord,
-    getPSFDashboard
+  getPSFRecords,
+  updatePSFRecord,
+  getPSFDashboard,
 };
