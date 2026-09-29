@@ -198,7 +198,162 @@ const updatePSFRecord = async (req, res) => {
   }
 };
 
+const getPSFDashboard = async (req, res) => {
+  try {
+    const { branchId, complaintStatus, notConnected, fromDate, toDate } =
+      req.query;
+
+    let filter = {};
+
+    /*
+     * Branch access
+     */
+
+    if (req.user.role === "admin") {
+      if (branchId) {
+        if (!mongoose.isValidObjectId(branchId)) {
+          return res.status(400).json({
+            message: "Invalid branch ID",
+          });
+        }
+
+        filter.branchId = branchId;
+      }
+    } else {
+      if (
+        !Array.isArray(req.user.branchIds) ||
+        req.user.branchIds.length === 0
+      ) {
+        return res.status(403).json({
+          message: "No branches assigned to this user",
+        });
+      }
+
+      if (branchId) {
+        if (!mongoose.isValidObjectId(branchId)) {
+          return res.status(400).json({
+            message: "Invalid branch ID",
+          });
+        }
+
+        const hasAccess = req.user.branchIds.some(
+          (assignedBranchId) => assignedBranchId.toString() === branchId,
+        );
+
+        if (!hasAccess) {
+          return res.status(403).json({
+            message: "Access denied for this branch",
+          });
+        }
+
+        filter.branchId = branchId;
+      } else {
+        filter.branchId = {
+          $in: req.user.branchIds,
+        };
+      }
+    }
+
+    /*
+     * Complaint status filter
+     */
+
+    if (complaintStatus) {
+      filter.complaintStatus = complaintStatus;
+    }
+
+    /*
+     * Not connected filter
+     *
+     * firstCallDate is empty or does not exist
+     */
+
+    if (notConnected === "true") {
+      filter.$or = [
+        {
+          firstCallDate: {
+            $exists: false,
+          },
+        },
+        {
+          firstCallDate: null,
+        },
+        {
+          firstCallDate: "",
+        },
+      ];
+    }
+
+    /*
+     * Bill date range filter
+     */
+
+    if (fromDate || toDate) {
+      filter.billDate = {};
+
+      if (fromDate) {
+        filter.billDate.$gte = new Date(fromDate);
+      }
+
+      if (toDate) {
+        const endDate = new Date(toDate);
+        endDate.setHours(23, 59, 59, 999);
+
+        filter.billDate.$lte = endDate;
+      }
+    }
+
+    /*
+     * Dashboard records
+     */
+
+    const records = await PSFRecord.find(filter)
+      .populate("branchId", "name code")
+      .sort({ billDate: -1 });
+
+    /*
+     * Summary
+     */
+
+    const totalRecords = records.length;
+
+    const openComplaints = records.filter(
+      (record) => record.complaintStatus?.toLowerCase() === "open",
+    ).length;
+
+    const closedComplaints = records.filter(
+      (record) => record.complaintStatus?.toLowerCase() === "closed",
+    ).length;
+
+    const notConnectedRecords = records.filter(
+      (record) => !record.firstCallDate,
+    ).length;
+
+    res.json({
+      message: "PSF dashboard data fetched successfully",
+
+      summary: {
+        totalRecords,
+        openComplaints,
+        closedComplaints,
+        notConnected: notConnectedRecords,
+      },
+
+      count: records.length,
+
+      records,
+    });
+  } catch (error) {
+    console.error("Get PSF dashboard error:", error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
 module.exports = {
-  getPSFRecords,
-  updatePSFRecord,
+    getPSFRecords,
+    updatePSFRecord,
+    getPSFDashboard
 };
