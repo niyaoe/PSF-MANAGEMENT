@@ -21,7 +21,7 @@ router.get(
 router.put(
     "/:id",
     protect,
-    authorizeRoles("admin", "manager", "employee"),
+    authorizeRoles("admin", "employee"), // "manager" 
     updatePSFRecord
 );
 
