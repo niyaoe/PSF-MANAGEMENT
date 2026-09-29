@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const PSFRecord = require("../models/PSFRecord");
 
 const getPSFRecords = async (req, res) => {
@@ -5,6 +6,14 @@ const getPSFRecords = async (req, res) => {
     let filter = {};
 
     const search = req.query.search?.trim();
+
+    const branchId = req.query.branchId?.trim();
+
+    if (branchId && !mongoose.isValidObjectId(branchId)) {
+      return res.status(400).json({
+        message: "Invalid branch ID",
+      });
+    }
 
     if (search) {
       filter.$or = [
@@ -41,7 +50,11 @@ const getPSFRecords = async (req, res) => {
       ];
     }
 
-    if (req.user.role !== "admin") {
+    if (req.user.role === "admin") {
+      if (branchId) {
+        filter.branchId = branchId;
+      }
+    } else {
       if (
         !Array.isArray(req.user.branchIds) ||
         req.user.branchIds.length === 0
@@ -51,9 +64,23 @@ const getPSFRecords = async (req, res) => {
         });
       }
 
-      filter.branchId = {
-        $in: req.user.branchIds,
-      };
+      if (branchId) {
+        const hasAccess = req.user.branchIds.some(
+          (assignedBranchId) => assignedBranchId.toString() === branchId,
+        );
+
+        if (!hasAccess) {
+          return res.status(403).json({
+            message: "Access denied for this branch",
+          });
+        }
+
+        filter.branchId = branchId;
+      } else {
+        filter.branchId = {
+          $in: req.user.branchIds,
+        };
+      }
     }
 
     const page = Math.max(parseInt(req.query.page) || 1, 1);
