@@ -170,7 +170,7 @@ const updatePSFRecord = async (req, res) => {
       "crmCxmRemarks",
       "messageToBeSent",
       "segment",
-      "userMobile"
+      "userMobile",
     ];
 
     editableFields.forEach((field) => {
@@ -208,11 +208,47 @@ const getPSFDashboard = async (req, res) => {
       notConnected,
       fromDate,
       toDate,
+      search,
       page = 1,
       limit = 20,
     } = req.query;
 
     let filter = {};
+
+    if (search?.trim()) {
+      filter.$or = [
+        {
+          roNumber: {
+            $regex: search.trim(),
+            $options: "i",
+          },
+        },
+        {
+          customerName: {
+            $regex: search.trim(),
+            $options: "i",
+          },
+        },
+        {
+          registrationNumber: {
+            $regex: search.trim(),
+            $options: "i",
+          },
+        },
+        {
+          chassisNumber: {
+            $regex: search.trim(),
+            $options: "i",
+          },
+        },
+        {
+          userName: {
+            $regex: search.trim(),
+            $options: "i",
+          },
+        },
+      ];
+    }
 
     /*
      * Branch access
@@ -388,6 +424,8 @@ const getPSFDashboard = async (req, res) => {
       (record) => !record.firstCallDate,
     ).length;
 
+    const totalPages = Math.ceil(totalRecords / recordsPerPage);
+
     res.json({
       message: "PSF dashboard data fetched successfully",
 
@@ -398,8 +436,14 @@ const getPSFDashboard = async (req, res) => {
         notConnected: notConnectedRecords,
       },
 
-      count: records.length,
+      pagination: {
+        page: currentPage,
+        limit: recordsPerPage,
+        totalRecords,
+        totalPages,
+      },
 
+      count: records.length,
       records,
     });
   } catch (error) {
