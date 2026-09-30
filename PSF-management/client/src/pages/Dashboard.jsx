@@ -5,6 +5,8 @@ import DashboardLayout from "../components/DashboardLayout";
 import SummaryCard from "../components/SummaryCard";
 import DashboardFilters from "../components/DashboardFilters";
 import Pagination from "../components/Pagination";
+import PSFTable from "../components/PSFTable";
+import BranchFilter from "../components/BranchFilter";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +23,8 @@ const Dashboard = () => {
     closedComplaints: 0,
     notConnected: 0,
   });
+
+  const [records, setRecords] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,6 +43,19 @@ const Dashboard = () => {
     totalRecords: 0,
     totalPages: 0,
   });
+
+  const [branches, setBranches] = useState([]);
+  const [branchId, setBranchId] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+
+      setBranches(user.branches || []);
+    }
+  }, []);
 
   const fetchDashboard = async () => {
     try {
@@ -67,6 +84,10 @@ const Dashboard = () => {
         params.toDate = toDate;
       }
 
+      if (branchId) {
+        params.branchId = branchId;
+      }
+
       params.page = page;
       params.limit = limit;
 
@@ -75,6 +96,7 @@ const Dashboard = () => {
       });
 
       setSummary(response.data.summary);
+      setRecords(response.data.records);
       setPagination(response.data.pagination);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to load dashboard");
@@ -82,6 +104,32 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
+  const fetchBranches = async () => {
+    try {
+      const storedUser = localStorage.getItem("user");
+
+      if (!storedUser) {
+        return;
+      }
+
+      const user = JSON.parse(storedUser);
+
+      if (user.role === "admin") {
+        const response = await api.get("/branches");
+
+        setBranches(response.data.branches);
+      } else {
+        setBranches(user.branches || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch branches:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBranches();
+  }, []);
 
   useEffect(() => {
     fetchDashboard();
@@ -99,6 +147,12 @@ const Dashboard = () => {
     <DashboardLayout>
       <h1>PSF Dashboard</h1>
       <button onClick={handleLogout}>Logout</button>
+
+      <BranchFilter
+        branches={branches}
+        branchId={branchId}
+        setBranchId={setBranchId}
+      />
 
       <DashboardFilters
         search={search}
@@ -126,6 +180,8 @@ const Dashboard = () => {
 
         <SummaryCard title="Not Connected" value={summary.notConnected} />
       </div>
+      <PSFTable records={records} />
+
       <Pagination
         page={pagination.page}
         totalPages={pagination.totalPages}
