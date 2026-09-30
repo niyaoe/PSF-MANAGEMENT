@@ -200,8 +200,15 @@ const updatePSFRecord = async (req, res) => {
 
 const getPSFDashboard = async (req, res) => {
   try {
-    const { branchId, complaintStatus, notConnected, fromDate, toDate } =
-      req.query;
+    const {
+      branchId,
+      complaintStatus,
+      notConnected,
+      fromDate,
+      toDate,
+      page = 1,
+      limit = 20,
+    } = req.query;
 
     let filter = {};
 
@@ -337,31 +344,45 @@ const getPSFDashboard = async (req, res) => {
       }
     }
 
+    const currentPage = Math.max(parseInt(page) || 1, 1);
+
+    const recordsPerPage = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
+
+    const skip = (currentPage - 1) * recordsPerPage;
+
+    const totalRecords = await PSFRecord.countDocuments(filter);
+
     /*
      * Dashboard records
      */
 
     const records = await PSFRecord.find(filter)
       .populate("branchId", "name code")
-      .sort({ billDate: -1 });
+      .sort({ billDate: -1 })
+      .skip(skip)
+      .limit(recordsPerPage);
 
     /*
      * Summary
      */
 
-    const totalRecords = records.length;
+    // const totalRecords = records.length;
 
-    const openComplaints = records.filter((record) => {
+    const summaryRecords = await PSFRecord.find(filter).select(
+      "complaintStatus firstCallDate",
+    );
+
+    const openComplaints = summaryRecords.filter((record) => {
       const status = record.complaintStatus?.trim().toLowerCase();
 
       return status === "open" || !status;
     }).length;
 
-    const closedComplaints = records.filter(
-      (record) => record.complaintStatus?.toLowerCase() === "closed",
+    const closedComplaints = summaryRecords.filter(
+      (record) => record.complaintStatus?.trim().toLowerCase() === "closed",
     ).length;
 
-    const notConnectedRecords = records.filter(
+    const notConnectedRecords = summaryRecords.filter(
       (record) => !record.firstCallDate,
     ).length;
 
