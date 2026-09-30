@@ -169,6 +169,8 @@ const updatePSFRecord = async (req, res) => {
       "complaintStatus",
       "crmCxmRemarks",
       "messageToBeSent",
+      "segment",
+      "userMobile"
     ];
 
     editableFields.forEach((field) => {
