@@ -7,6 +7,7 @@ import DashboardFilters from "../components/DashboardFilters";
 import Pagination from "../components/Pagination";
 import PSFTable from "../components/PSFTable";
 import BranchFilter from "../components/BranchFilter";
+import PSFEditModal from "../components/PSFEditModal";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const Dashboard = () => {
   });
 
   const [records, setRecords] = useState([]);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -180,12 +182,18 @@ const Dashboard = () => {
 
         <SummaryCard title="Not Connected" value={summary.notConnected} />
       </div>
-      <PSFTable records={records} />
+      <PSFTable records={records} onSelectRecord={setSelectedRecord} />
 
       <Pagination
         page={pagination.page}
         totalPages={pagination.totalPages}
         onPageChange={setPage}
+      />
+      <PSFEditModal
+        record={selectedRecord}
+        onClose={() => {
+          setSelectedRecord(null);
+        }}
       />
     </DashboardLayout>
   );
