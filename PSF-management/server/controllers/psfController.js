@@ -288,17 +288,32 @@ const getPSFDashboard = async (req, res) => {
      */
 
     if (notConnected === "true") {
-      filter.$or = [
+      filter.$and = [
+        {
+          $or: [
+            {
+              firstCallDate: {
+                $exists: false,
+              },
+            },
+            {
+              firstCallDate: null,
+            },
+            {
+              firstCallDate: "",
+            },
+          ],
+        },
+      ];
+    }
+
+    if (notConnected === "false") {
+      filter.$and = [
         {
           firstCallDate: {
-            $exists: false,
+            $exists: true,
+            $nin: [null, ""],
           },
-        },
-        {
-          firstCallDate: null,
-        },
-        {
-          firstCallDate: "",
         },
       ];
     }
