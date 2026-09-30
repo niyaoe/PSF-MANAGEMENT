@@ -106,18 +106,21 @@ const PSFEditModal = ({ record, onClose }) => {
           <div>
             <label>Owner Mobile</label>
 
-            <input type="text" defaultValue={record.ownerMobile || ""} />
+            <input
+              type="text"
+              name="ownerMobile"
+              value={formData.ownerMobile}
+              onChange={handleChange}
+            />
           </div>
           <div>
             <label>1st Call Date</label>
 
             <input
               type="date"
-              defaultValue={
-                record.firstCallDate
-                  ? record.firstCallDate.substring(0, 10)
-                  : ""
-              }
+              name="firstCallDate"
+              value={formData.firstCallDate}
+              onChange={handleChange}
             />
           </div>
 
@@ -126,11 +129,9 @@ const PSFEditModal = ({ record, onClose }) => {
 
             <input
               type="date"
-              defaultValue={
-                record.secondFollowUpDate
-                  ? record.secondFollowUpDate.substring(0, 10)
-                  : ""
-              }
+              name="secondFollowUpDate"
+              value={formData.secondFollowUpDate}
+              onChange={handleChange}
             />
           </div>
 
@@ -139,11 +140,9 @@ const PSFEditModal = ({ record, onClose }) => {
 
             <input
               type="date"
-              defaultValue={
-                record.thirdFollowUpDate
-                  ? record.thirdFollowUpDate.substring(0, 10)
-                  : ""
-              }
+              name="thirdFollowUpDate"
+              value={formData.thirdFollowUpDate}
+              onChange={handleChange}
             />
           </div>
 
