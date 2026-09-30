@@ -170,7 +170,7 @@ const updatePSFRecord = async (req, res) => {
       "crmCxmRemarks",
       "messageToBeSent",
       "segment",
-      "userMobile",
+      "ownerMobile",
     ];
 
     editableFields.forEach((field) => {
