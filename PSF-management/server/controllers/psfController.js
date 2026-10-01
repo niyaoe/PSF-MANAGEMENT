@@ -424,6 +424,9 @@ const getPSFDashboard = async (req, res) => {
       (record) => !record.firstCallDate,
     ).length;
 
+    const connectedRecords =
+    totalRecords - notConnectedRecords;
+
     const totalPages = Math.ceil(totalRecords / recordsPerPage);
 
     res.json({
@@ -434,6 +437,7 @@ const getPSFDashboard = async (req, res) => {
         openComplaints,
         closedComplaints,
         notConnected: notConnectedRecords,
+        connected: connectedRecords
       },
 
       pagination: {
