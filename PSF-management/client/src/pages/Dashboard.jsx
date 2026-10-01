@@ -10,6 +10,7 @@ import BranchFilter from "../components/BranchFilter";
 import PSFEditModal from "../components/PSFEditModal";
 
 const Dashboard = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -148,13 +149,17 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <h1>PSF Dashboard</h1>
+      <p>Role: {user?.role}</p>
+      <p>Accessible Branches: {branches.length}</p>
       <button onClick={handleLogout}>Logout</button>
 
-      <BranchFilter
-        branches={branches}
-        branchId={branchId}
-        setBranchId={setBranchId}
-      />
+      {user?.role === "admin" && (
+        <BranchFilter
+          branches={branches}
+          branchId={branchId}
+          setBranchId={setBranchId}
+        />
+      )}
 
       <DashboardFilters
         search={search}
@@ -181,6 +186,7 @@ const Dashboard = () => {
         />
 
         <SummaryCard title="Not Connected" value={summary.notConnected} />
+        <SummaryCard title="Connected" value={summary.connected} />
       </div>
       <PSFTable records={records} onSelectRecord={setSelectedRecord} />
 

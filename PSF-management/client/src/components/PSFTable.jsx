@@ -4,13 +4,19 @@ const PSFTable = ({ records, onSelectRecord }) => {
   }
 
   return (
-    <div>
+    <div
+      style={{
+        width: "100%",
+        overflowX: "auto",
+      }}
+    >
       <table>
         <thead>
           <tr>
             <th>RO Number</th>
             <th>Customer Name</th>
             <th>Registration No.</th>
+            <th>Owner Mobile</th>
             <th>Branch</th>
             <th>Model</th>
             <th>Service Type</th>
@@ -32,6 +38,8 @@ const PSFTable = ({ records, onSelectRecord }) => {
               <td>{record.customerName}</td>
 
               <td>{record.registrationNumber}</td>
+
+              <td>{record.ownerMobile}</td>
 
               <td>{record.branchId?.name}</td>
 
