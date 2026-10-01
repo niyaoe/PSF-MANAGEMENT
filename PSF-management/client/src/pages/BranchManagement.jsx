@@ -2,168 +2,138 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 
 const BranchManagement = () => {
-    const [branches, setBranches] = useState([]);
+  const [branches, setBranches] = useState([]);
 
-    const [name, setName] = useState("");
-    const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
 
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const fetchBranches = async () => {
-        try {
-            const response = await api.get("/branches");
+  const fetchBranches = async () => {
+    try {
+      const response = await api.get("/branches");
 
-            setBranches(
-                response.data.branches
-            );
-        } catch (error) {
-            setMessage(
-                error.response?.data?.message ||
-                "Failed to load branches"
-            );
-        }
-    };
+      setBranches(response.data.branches);
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Failed to load branches");
+    }
+  };
 
-    useEffect(() => {
-        fetchBranches();
-    }, []);
+  useEffect(() => {
+    fetchBranches();
+  }, []);
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-        setMessage("");
-        setLoading(true);
+    setMessage("");
+    setLoading(true);
 
-        try {
-            const response = await api.post(
-                "/branches",
-                {
-                    name,
-                    code
-                }
-            );
+    try {
+      const response = await api.post("/branches", {
+        name,
+        code,
+      });
 
-            setMessage(
-                response.data.message
-            );
+      setMessage(response.data.message);
 
-            setName("");
-            setCode("");
+      setName("");
+      setCode("");
 
-            await fetchBranches();
-        } catch (error) {
-            setMessage(
-                error.response?.data?.message ||
-                "Failed to create branch"
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+      await fetchBranches();
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Failed to create branch");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div>
-            <h1>
-                Branch Management
-            </h1>
+  return (
+    <div className="aero-page">
+      {/* Page Header */}
+      <div className="aero-page-header">
+        <h1 className="aero-page-title">Branch Management</h1>
 
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>
-                        Branch Name
-                    </label>
+        <p className="aero-page-subtitle">Create and manage PSF branches</p>
+      </div>
 
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(event) => {
-                            setName(event.target.value);
-                        }}
-                        required
-                    />
-                </div>
+      {/* Create Branch */}
+      <div className="aero-panel">
+        <h2 className="aero-panel-title">Create Branch</h2>
 
-                <div>
-                    <label>
-                        Branch Code
-                    </label>
+        <form className="aero-branch-form" onSubmit={handleSubmit}>
+          <div className="aero-form-group">
+            <label>Branch Name</label>
 
-                    <input
-                        type="text"
-                        value={code}
-                        onChange={(event) => {
-                            setCode(event.target.value);
-                        }}
-                        required
-                    />
-                </div>
+            <input
+              type="text"
+              value={name}
+              onChange={(event) => {
+                setName(event.target.value);
+              }}
+              required
+            />
+          </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                >
-                    {loading
-                        ? "Creating..."
-                        : "Create Branch"}
-                </button>
-            </form>
+          <div className="aero-form-group">
+            <label>Branch Code</label>
 
-            {message && (
-                <p>
-                    {message}
-                </p>
-            )}
+            <input
+              type="text"
+              value={code}
+              onChange={(event) => {
+                setCode(event.target.value);
+              }}
+              required
+            />
+          </div>
 
-            <h2>
-                Existing Branches
-            </h2>
+          <button className="aero-button" type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Create Branch"}
+          </button>
+        </form>
+      </div>
 
-            {branches.length === 0 ? (
-                <p>
-                    No branches found.
-                </p>
-            ) : (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>
-                                Branch Name
-                            </th>
+      {/* Message */}
+      {message && <p className="aero-message">{message}</p>}
 
-                            <th>
-                                Code
-                            </th>
+      {/* Existing Branches */}
+      <div className="aero-panel">
+        <h2 className="aero-panel-title">Existing Branches</h2>
 
-                            <th>
-                                Status
-                            </th>
-                        </tr>
-                    </thead>
+        {branches.length === 0 ? (
+          <p>No branches found.</p>
+        ) : (
+          <div className="aero-table-wrapper">
+            <table className="aero-table">
+              <thead>
+                <tr>
+                  <th>Branch Name</th>
 
-                    <tbody>
-                        {branches.map((branch) => (
-                            <tr key={branch._id}>
-                                <td>
-                                    {branch.name}
-                                </td>
+                  <th>Code</th>
 
-                                <td>
-                                    {branch.code}
-                                </td>
+                  <th>Status</th>
+                </tr>
+              </thead>
 
-                                <td>
-                                    {branch.isActive
-                                        ? "Active"
-                                        : "Inactive"}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
-        </div>
-    );
+              <tbody>
+                {branches.map((branch) => (
+                  <tr key={branch._id}>
+                    <td>{branch.name}</td>
+
+                    <td>{branch.code}</td>
+
+                    <td>{branch.isActive ? "Active" : "Inactive"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default BranchManagement;

@@ -4,7 +4,7 @@ const BranchFilter = ({
     setBranchId
 }) => {
     return (
-        <div>
+        <div className="aero-filter-group">
             <label>Branch</label>
 
             <select

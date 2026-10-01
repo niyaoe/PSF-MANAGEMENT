@@ -148,10 +148,10 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <h1>PSF Dashboard</h1>
-      <p>Role: {user?.role}</p>
-      <p>Accessible Branches: {branches.length}</p>
-      <button onClick={handleLogout}>Logout</button>
+      {/* <h1>PSF Dashboard</h1> */}
+      {/* <p>Role: {user?.role}</p> */}
+      {/* <p>Accessible Branches: {branches.length}</p> */}
+      {/* <button onClick={handleLogout}>Logout</button> */}
 
       {user?.role === "admin" && (
         <BranchFilter

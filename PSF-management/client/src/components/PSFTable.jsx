@@ -4,13 +4,8 @@ const PSFTable = ({ records, onSelectRecord }) => {
   }
 
   return (
-    <div
-      style={{
-        width: "100%",
-        overflowX: "auto",
-      }}
-    >
-      <table>
+   <div className="aero-table-wrapper">
+      <table className="aero-table">
         <thead>
           <tr>
             <th>RO Number</th>

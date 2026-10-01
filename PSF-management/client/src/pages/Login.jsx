@@ -37,11 +37,11 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>PSF Management</h1>
+    <div className="aero-login-page">
+      <h1 className="aero-login-title">PSF Management</h1>
 
-      <form onSubmit={handleLogin}>
-        <div>
+      <form className="aero-login-panel" onSubmit={handleLogin}>
+        <div className="aero-form-group">
           <label>Email</label>
 
           <input
@@ -54,7 +54,7 @@ const Login = () => {
           />
         </div>
 
-        <div>
+        <div className="aero-form-group">
           <label>Password</label>
 
           <input
@@ -67,7 +67,11 @@ const Login = () => {
           />
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button
+          className="aero-button aero-login-button"
+          type="submit"
+          disabled={loading}
+        >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>

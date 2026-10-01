@@ -1,8 +1,13 @@
 const SummaryCard = ({ title, value }) => {
     return (
-        <div>
-            <h3>{title}</h3>
-            <p>{value}</p>
+        <div className="aero-summary-card">
+            <div className="aero-summary-title">
+                {title}
+            </div>
+
+            <div className="aero-summary-value">
+                {value}
+            </div>
         </div>
     );
 };
