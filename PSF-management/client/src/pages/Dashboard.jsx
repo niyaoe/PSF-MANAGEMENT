@@ -194,6 +194,9 @@ const Dashboard = () => {
         onClose={() => {
           setSelectedRecord(null);
         }}
+        onSaveSuccess={() => {
+          fetchDashboard();
+        }}
       />
     </DashboardLayout>
   );

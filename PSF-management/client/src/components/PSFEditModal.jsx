@@ -1,32 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../services/api";
-const PSFEditModal = ({ record, onClose }) => {
+const PSFEditModal = ({ record, onClose, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
-    ownerMobile: record.ownerMobile || "",
-    firstCallDate: record.firstCallDate
+    ownerMobile: record?.ownerMobile || "",
+    firstCallDate: record?.firstCallDate
       ? record.firstCallDate.substring(0, 10)
       : "",
-    secondFollowUpDate: record.secondFollowUpDate
+    secondFollowUpDate: record?.secondFollowUpDate
       ? record.secondFollowUpDate.substring(0, 10)
       : "",
-    thirdFollowUpDate: record.thirdFollowUpDate
+    thirdFollowUpDate: record?.thirdFollowUpDate
       ? record.thirdFollowUpDate.substring(0, 10)
       : "",
-    whatsAppBot: record.whatsAppBot || "",
-    rating: record.rating || "",
-    serviceAdvisorBehaviour: record.serviceAdvisorBehaviour || "",
-    advisorExplanation: record.advisorExplanation || "",
-    vehicleCleanliness: record.vehicleCleanliness || "",
-    qualityOfWork: record.qualityOfWork || "",
-    waitingAreaFacilities: record.waitingAreaFacilities || "",
-    deliveryAtPromisedTime: record.deliveryAtPromisedTime || "",
-    voc: record.voc || "",
-    typeOfConcern: record.typeOfConcern || "",
-    callDate: record.callDate ? record.callDate.substring(0, 10) : "",
-    complaintStatus: record.complaintStatus || "",
-    crmCxmRemarks: record.crmCxmRemarks || "",
-    messageToBeSent: record.messageToBeSent || "",
+    whatsAppBot: record?.whatsAppBot || "",
+    rating: record?.rating || "",
+    serviceAdvisorBehaviour: record?.serviceAdvisorBehaviour || "",
+    advisorExplanation: record?.advisorExplanation || "",
+    vehicleCleanliness: record?.vehicleCleanliness || "",
+    qualityOfWork: record?.qualityOfWork || "",
+    waitingAreaFacilities: record?.waitingAreaFacilities || "",
+    deliveryAtPromisedTime: record?.deliveryAtPromisedTime || "",
+    voc: record?.voc || "",
+    typeOfConcern: record?.typeOfConcern || "",
+    callDate: record?.callDate ? record.callDate.substring(0, 10) : "",
+    complaintStatus: record?.complaintStatus || "",
+    crmCxmRemarks: record?.crmCxmRemarks || "",
+    messageToBeSent: record?.messageToBeSent || "",
   });
+
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!record) {
+      return;
+    }
+
+    setFormData({
+      ownerMobile: record.ownerMobile || "",
+      firstCallDate: record.firstCallDate
+        ? record.firstCallDate.substring(0, 10)
+        : "",
+      secondFollowUpDate: record.secondFollowUpDate
+        ? record.secondFollowUpDate.substring(0, 10)
+        : "",
+      thirdFollowUpDate: record.thirdFollowUpDate
+        ? record.thirdFollowUpDate.substring(0, 10)
+        : "",
+      whatsAppBot: record.whatsAppBot || "",
+      rating: record.rating || "",
+      serviceAdvisorBehaviour: record.serviceAdvisorBehaviour || "",
+      advisorExplanation: record.advisorExplanation || "",
+      vehicleCleanliness: record.vehicleCleanliness || "",
+      qualityOfWork: record.qualityOfWork || "",
+      waitingAreaFacilities: record.waitingAreaFacilities || "",
+      deliveryAtPromisedTime: record.deliveryAtPromisedTime || "",
+      voc: record.voc || "",
+      typeOfConcern: record.typeOfConcern || "",
+      callDate: record.callDate ? record.callDate.substring(0, 10) : "",
+      complaintStatus: record.complaintStatus || "",
+      crmCxmRemarks: record.crmCxmRemarks || "",
+      messageToBeSent: record.messageToBeSent || "",
+    });
+  }, [record]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -35,6 +71,28 @@ const PSFEditModal = ({ record, onClose }) => {
       ...previousData,
       [name]: value,
     }));
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setMessage("");
+
+      await api.put(`/psf/${record._id}`, formData);
+
+      setMessage("PSF record updated successfully");
+
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      }
+      onClose();
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "Failed to update PSF record",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!record) {
@@ -149,70 +207,208 @@ const PSFEditModal = ({ record, onClose }) => {
           <div>
             <label>WhatsApp Bot</label>
 
-            <input type="text" defaultValue={record.whatsAppBot || ""} />
+            <select
+              name="whatsAppBot"
+              value={formData.whatsAppBot}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+
+              <option value="Yes">Yes</option>
+
+              <option value="No">No</option>
+            </select>
           </div>
 
           <div>
             <label>Rating</label>
 
-            <input type="text" defaultValue={record.rating || ""} />
+            <select
+              name="rating"
+              value={formData.rating}
+              onChange={handleChange}
+            >
+              <option value="">Rating</option>
+              <option value="10">10</option>
+              <option value="9">9</option>
+              <option value="8">8</option>
+              <option value="7">7</option>
+              <option value="6">6</option>
+              <option value="5">5</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
           </div>
 
           <div>
             <label>Service Advisor Behaviour</label>
 
-            <input
-              type="text"
-              defaultValue={record.serviceAdvisorBehaviour || ""}
-            />
+            <select
+              name="serviceAdvisorBehaviour"
+              value={formData.serviceAdvisorBehaviour}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+              <option value="Very Satisfied">Very Satisfied</option>
+              <option value="Satisfied">Satisfied</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Dissatisfied">Dissatisfied</option>
+              <option value="Very Dissatisfied">Very Dissatisfied</option>
+            </select>
           </div>
 
           <div>
             <label>Advisor Explanation</label>
 
-            <textarea defaultValue={record.advisorExplanation || ""} />
+            <select
+              name="advisorExplanation"
+              value={formData.advisorExplanation}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+              <option value="Very Satisfied">Very Satisfied</option>
+              <option value="Satisfied">Satisfied</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Dissatisfied">Dissatisfied</option>
+              <option value="Very Dissatisfied">Very Dissatisfied</option>
+            </select>
           </div>
 
           <div>
             <label>Vehicle Cleanliness</label>
 
-            <input type="text" defaultValue={record.vehicleCleanliness || ""} />
+            <select
+              name="vehicleCleanliness"
+              value={formData.vehicleCleanliness}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+              <option value="Very Satisfied">Very Satisfied</option>
+              <option value="Satisfied">Satisfied</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Dissatisfied">Dissatisfied</option>
+              <option value="Very Dissatisfied">Very Dissatisfied</option>
+            </select>
           </div>
 
           <div>
             <label>Quality of Work</label>
 
-            <input type="text" defaultValue={record.qualityOfWork || ""} />
+            <select
+              name="qualityOfWork"
+              value={formData.qualityOfWork}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+              <option value="Very Satisfied">Very Satisfied</option>
+              <option value="Satisfied">Satisfied</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Dissatisfied">Dissatisfied</option>
+              <option value="Very Dissatisfied">Very Dissatisfied</option>
+            </select>
           </div>
 
           <div>
             <label>Waiting Area Facilities</label>
 
-            <input
-              type="text"
-              defaultValue={record.waitingAreaFacilities || ""}
-            />
+            <select
+              name="waitingAreaFacilities"
+              value={formData.waitingAreaFacilities}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+              <option value="Very Satisfied">Very Satisfied</option>
+              <option value="Satisfied">Satisfied</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Dissatisfied">Dissatisfied</option>
+              <option value="Very Dissatisfied">Very Dissatisfied</option>
+            </select>
           </div>
 
           <div>
             <label>Delivery at Promised Time</label>
 
-            <input
-              type="text"
-              defaultValue={record.deliveryAtPromisedTime || ""}
-            />
+            <select
+              name="deliveryAtPromisedTime"
+              value={formData.deliveryAtPromisedTime}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+              <option value="Very Satisfied">Very Satisfied</option>
+              <option value="Satisfied">Satisfied</option>
+              <option value="Neutral">Neutral</option>
+              <option value="Dissatisfied">Dissatisfied</option>
+              <option value="Very Dissatisfied">Very Dissatisfied</option>
+            </select>
           </div>
 
           <div>
             <label>VOC</label>
 
-            <textarea defaultValue={record.voc || ""} />
+            <textarea name="voc" value={formData.voc} onChange={handleChange} />
           </div>
 
           <div>
             <label>Type of Concern</label>
 
-            <input type="text" defaultValue={record.typeOfConcern || ""} />
+            <select
+              name="typeOfConcern"
+              value={formData.typeOfConcern}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+
+              <option value="Call not Connected">Call not Connected</option>
+
+              <option value="Ring but no Responce">Ring but no Responce</option>
+              <option value="Customer Busy">Customer Busy</option>
+              <option value="Wrong Number">Wrong Number</option>
+              <option value="Call after some Time">Call after some Time</option>
+              <option value="Bill amount issue">Bill amount issue</option>
+              <option value="Complaint Not Solved">Complaint Not Solved</option>
+              <option value="Delay In Appointment">Delay In Appointment</option>
+              <option value="Delay In Attending">Delay In Attending</option>
+              <option value="Delay in Delivery">Delay in Delivery</option>
+              <option value="Satisfied">Satisfied</option>
+              <option value="Parts Issue">Parts Issue</option>
+              <option value="Vehicle at Service Center">
+                Vehicle at Service Center
+              </option>
+              <option value="Vehicle not Driven">Vehicle not Driven</option>
+              <option value="Washing Issue">Washing Issue</option>
+              <option value="Work not Completed">Work not Completed</option>
+              <option value="Behaviour of Staff">Behaviour of Staff</option>
+              <option value="Using Other Person">Using Other Person</option>
+              <option value="Proper Updation">Proper Updation</option>
+              <option value="Vehicle Damage">Vehicle Damage</option>
+              <option value="Already Contacted">Already Contacted</option>
+              <option value="Prvs service related">Prvs service related</option>
+              <option value="Infra-Sales">Infra-Sales</option>
+              <option value="Infra-Service">Infra-Service</option>
+              <option value="Department Vehicle">Department Vehicle</option>
+              <option value="Product Related">Product Related</option>
+              <option value="Unauthorised use of Vehicle">
+                Unauthorised use of Vehicle
+              </option>
+              <option value="Items Missing in the workshop">
+                Items Missing in the workshop
+              </option>
+              <option value="Service Quality">Service Quality</option>
+              <option value="Poor Workshop infrastructure - Ambience">
+                Poor Workshop infrastructure - Ambience
+              </option>
+              <option value="Vehicle Damaged During Road Test / P&D">
+                Vehicle Damaged During Road Test / P&D
+              </option>
+              <option value="Parts / Accessory related">
+                Parts / Accessory related
+              </option>
+              <option value="Product related">Product related</option>
+              <option value="RSA Related">RSA Related</option>
+              <option value="Software updation">Software updation</option>
+            </select>
           </div>
 
           <div>
@@ -220,16 +416,20 @@ const PSFEditModal = ({ record, onClose }) => {
 
             <input
               type="date"
-              defaultValue={
-                record.callDate ? record.callDate.substring(0, 10) : ""
-              }
+              name="callDate"
+              value={formData.callDate}
+              onChange={handleChange}
             />
           </div>
 
           <div>
             <label>Complaint Status</label>
 
-            <select defaultValue={record.complaintStatus || ""}>
+            <select
+              name="complaintStatus"
+              value={formData.complaintStatus}
+              onChange={handleChange}
+            >
               <option value="">Select Status</option>
 
               <option value="Open">Open</option>
@@ -241,14 +441,37 @@ const PSFEditModal = ({ record, onClose }) => {
           <div>
             <label>CRM/CXM Remarks</label>
 
-            <textarea defaultValue={record.crmCxmRemarks || ""} />
+            <textarea
+              name="crmCxmRemarks"
+              value={formData.crmCxmRemarks}
+              onChange={handleChange}
+            />
           </div>
 
           <div>
             <label>Message to be Sent</label>
 
-            <textarea defaultValue={record.messageToBeSent || ""} />
+            <select
+              name="messageToBeSent"
+              value={formData.messageToBeSent}
+              onChange={handleChange}
+            >
+              <option value="">Select Status</option>
+
+              <option value="Yes">Yes</option>
+
+              <option value="No">No</option>
+            </select>
           </div>
+          <div>
+            <button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+
+            <button onClick={onClose}>Cancel</button>
+          </div>
+
+          {message && <p>{message}</p>}
         </div>
       </div>
     </div>
