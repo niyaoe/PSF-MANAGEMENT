@@ -4,7 +4,7 @@ const PSFTable = ({ records, onSelectRecord }) => {
   }
 
   return (
-   <div className="aero-table-wrapper">
+    <div className="aero-table-wrapper">
       <table className="aero-table">
         <thead>
           <tr>
@@ -28,7 +28,13 @@ const PSFTable = ({ records, onSelectRecord }) => {
         <tbody>
           {records.map((record) => (
             <tr key={record._id}>
-              <td>{record.roNumber}</td>
+              <td
+                onClick={() => {
+                  onSelectRecord(record);
+                }}
+              >
+                {record.roNumber}
+              </td>
 
               <td>{record.customerName}</td>
 

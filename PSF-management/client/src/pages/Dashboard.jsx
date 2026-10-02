@@ -175,7 +175,7 @@ const Dashboard = () => {
         onSearch={fetchDashboard}
       />
 
-      <div>
+      <div className="aero-summary-grid">
         <SummaryCard title="Total Records" value={summary.totalRecords} />
 
         <SummaryCard title="Open Complaints" value={summary.openComplaints} />

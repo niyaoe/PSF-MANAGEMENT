@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import "../styles/excelImport.css";
 
 const ExcelImport = () => {
   const [file, setFile] = useState(null);
@@ -45,70 +46,79 @@ const ExcelImport = () => {
   };
 
   return (
-    <div className="aero-page">
-      {/* Page Header */}
-      <div className="aero-page-header">
-        <h1 className="aero-page-title">Excel Import</h1>
+    <div className="excel-aero-page">
+      <div className="excel-aero-header">
+        <h1 className="excel-aero-title">Excel Import</h1>
 
-        <p className="aero-page-subtitle">
+        <p className="excel-aero-subtitle">
           Import PSF records from an Excel file
         </p>
       </div>
 
-      {/* Import Panel */}
-      <div className="aero-panel">
-        <h2 className="aero-panel-title">Import Excel File</h2>
+      <div className="excel-aero-panel">
+        <h2 className="excel-aero-panel-title">Import Excel File</h2>
 
-        <form className="aero-excel-form" onSubmit={handleUpload}>
-          <div className="aero-form-group">
+        <form className="excel-aero-form" onSubmit={handleUpload}>
+          <div className="excel-aero-field">
             <label>Select Excel File</label>
 
             <input
+              className="excel-aero-file"
               type="file"
               accept=".xlsx,.xls"
               onChange={handleFileChange}
             />
 
-            <p className="aero-help-text">Supported formats: .xlsx and .xls</p>
+            <p className="excel-aero-help">Supported formats: .xlsx and .xls</p>
           </div>
 
-          <button className="aero-button" type="submit" disabled={loading}>
+          <button
+            className="excel-aero-button"
+            type="submit"
+            disabled={loading}
+          >
             {loading ? "Importing..." : "Import Excel"}
           </button>
         </form>
       </div>
 
-      {/* Message */}
-      {message && <p className="aero-message">{message}</p>}
+      {message && <p className="excel-aero-message">{message}</p>}
 
-      {/* Import Result */}
       {result && (
-        <div className="aero-panel">
-          <h2 className="aero-panel-title">Import Result</h2>
+        <div className="excel-aero-panel">
+          <h2 className="excel-aero-panel-title">Import Result</h2>
 
-          <div className="aero-import-results">
-            <div className="aero-result-item">
-              <span>Total Rows</span>
+          <div className="excel-aero-results">
+            <div className="excel-aero-result-card">
+              <span className="excel-aero-result-label">Total Rows</span>
 
-              <strong>{result.totalRows}</strong>
+              <strong className="excel-aero-result-value">
+                {result.totalRows}
+              </strong>
             </div>
 
-            <div className="aero-result-item">
-              <span>Valid Rows</span>
+            <div className="excel-aero-result-card">
+              <span className="excel-aero-result-label">Valid Rows</span>
 
-              <strong>{result.importedRows}</strong>
+              <strong className="excel-aero-result-value">
+                {result.importedRows}
+              </strong>
             </div>
 
-            <div className="aero-result-item">
-              <span>Inserted</span>
+            <div className="excel-aero-result-card">
+              <span className="excel-aero-result-label">Inserted</span>
 
-              <strong>{result.insertedCount}</strong>
+              <strong className="excel-aero-result-value">
+                {result.insertedCount}
+              </strong>
             </div>
 
-            <div className="aero-result-item">
-              <span>Matched</span>
+            <div className="excel-aero-result-card">
+              <span className="excel-aero-result-label">Matched</span>
 
-              <strong>{result.matchedCount}</strong>
+              <strong className="excel-aero-result-value">
+                {result.matchedCount}
+              </strong>
             </div>
           </div>
         </div>
