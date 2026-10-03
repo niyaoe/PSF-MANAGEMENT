@@ -1,4 +1,4 @@
-const PSFTable = ({ records, onSelectRecord }) => {
+const PSFTable = ({ records, onSelectRecord, page, limit }) => {
   if (!records || records.length === 0) {
     return <p>No PSF records found.</p>;
   }
@@ -8,15 +8,18 @@ const PSFTable = ({ records, onSelectRecord }) => {
       <table className="aero-table">
         <thead>
           <tr>
+            <th>Sl No.</th>
             <th>RO Number</th>
+            <th>Bill Date</th>
             <th>Customer Name</th>
             <th>Registration No.</th>
+            <th>Chassis No.</th>
+            <th>Pincode</th>
             <th>Owner Mobile</th>
             <th>Branch</th>
             <th>Model</th>
             <th>Service Type</th>
             <th>SA Name</th>
-            <th>Bill Date</th>
             <th>Complaint Status</th>
             <th>Call Date</th>
             <th>Rating</th>
@@ -26,8 +29,9 @@ const PSFTable = ({ records, onSelectRecord }) => {
         </thead>
 
         <tbody>
-          {records.map((record) => (
+          {records.map((record, index) => (
             <tr key={record._id}>
+              <td>{(page - 1) * limit + index + 1}</td>
               <td
                 onClick={() => {
                   onSelectRecord(record);
@@ -35,10 +39,19 @@ const PSFTable = ({ records, onSelectRecord }) => {
               >
                 {record.roNumber}
               </td>
+              <td>
+                {record.billDate
+                  ? new Date(record.billDate).toLocaleDateString()
+                  : ""}
+              </td>
 
               <td>{record.customerName}</td>
 
               <td>{record.registrationNumber}</td>
+
+              <td>{record.chassisNumber}</td>
+
+              <td>{record.pincode || "-"}</td>
 
               <td>{record.ownerMobile}</td>
 
@@ -49,12 +62,6 @@ const PSFTable = ({ records, onSelectRecord }) => {
               <td>{record.serviceType}</td>
 
               <td>{record.serviceAdvisorName}</td>
-
-              <td>
-                {record.billDate
-                  ? new Date(record.billDate).toLocaleDateString()
-                  : ""}
-              </td>
 
               <td>{record.complaintStatus}</td>
 

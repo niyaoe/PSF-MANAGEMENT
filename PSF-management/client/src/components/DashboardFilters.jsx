@@ -1,3 +1,5 @@
+import BranchFilter from "./BranchFilter";
+
 const DashboardFilters = ({
   search,
   setSearch,
@@ -10,7 +12,19 @@ const DashboardFilters = ({
   toDate,
   setToDate,
   onSearch,
+  branches,
+  branchId,
+  setBranchId,
 }) => {
+  const handleClearFilters = () => {
+    setSearch("");
+    setComplaintStatus("");
+    setNotConnected("All");
+    setFromDate("");
+    setToDate("");
+    setBranchId("");
+  };
+
   return (
     <div className="aero-filter-panel">
       <div className="aero-filter-group">
@@ -25,6 +39,14 @@ const DashboardFilters = ({
           }}
         />
       </div>
+
+      {branches.length > 0 && (
+        <BranchFilter
+          branches={branches}
+          branchId={branchId}
+          setBranchId={setBranchId}
+        />
+      )}
 
       <div className="aero-filter-group">
         <label>Complaint Status</label>
@@ -84,9 +106,23 @@ const DashboardFilters = ({
         />
       </div>
 
-      <button className="aero-button" onClick={onSearch}>
-        Apply Filters
-      </button>
+      <div className="aero-filter-actions">
+        <button
+          className="aero-button"
+          type="button"
+          onClick={onSearch}
+        >
+          Apply Filter
+        </button>
+
+        <button
+          className="aero-button"
+          type="button"
+          onClick={handleClearFilters}
+        >
+          Clear Filters
+        </button>
+      </div>
     </div>
   );
 };

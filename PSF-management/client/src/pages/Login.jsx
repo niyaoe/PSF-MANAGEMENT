@@ -2,18 +2,24 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../services/api";
+import "../styles/login.css";
 
 const Login = () => {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
+
   const [message, setMessage] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
     setMessage("");
+
     setLoading(true);
 
     try {
@@ -37,14 +43,28 @@ const Login = () => {
   };
 
   return (
-    <div className="aero-login-page">
-      <h1 className="aero-login-title">PSF Management</h1>
+    <div className="login-aero-page">
+      {/* Logo */}
 
-      <form className="aero-login-panel" onSubmit={handleLogin}>
-        <div className="aero-form-group">
+      {/* Title */}
+
+      {/* Login Form */}
+
+      <form className="login-aero-panel" onSubmit={handleLogin}>
+        <div className="login-title-content">
+          <img
+            className="login-aero-logo"
+            src="/logo.png"
+            alt="PSF Management"
+          />
+          <h1 className="login-aero-title">PSF Management</h1>
+        </div>
+
+        <div className="login-aero-form-group">
           <label>Email</label>
 
           <input
+            className="login-aero-input"
             type="email"
             value={email}
             onChange={(event) => {
@@ -54,10 +74,11 @@ const Login = () => {
           />
         </div>
 
-        <div className="aero-form-group">
+        <div className="login-aero-form-group">
           <label>Password</label>
 
           <input
+            className="login-aero-input"
             type="password"
             value={password}
             onChange={(event) => {
@@ -67,16 +88,14 @@ const Login = () => {
           />
         </div>
 
-        <button
-          className="aero-button aero-login-button"
-          type="submit"
-          disabled={loading}
-        >
+        <button className="login-aero-button" type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
-      {message && <p>{message}</p>}
+      {/* Message */}
+
+      {message && <p className="login-aero-message">{message}</p>}
     </div>
   );
 };

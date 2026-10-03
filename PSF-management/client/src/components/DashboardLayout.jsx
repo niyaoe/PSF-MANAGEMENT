@@ -18,7 +18,10 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className="aero-app">
       <header className="aero-header">
-        <h1 className="aero-title">PSF Management</h1>
+        <div className="aero-title-area">
+          <img className="aero-logo" src="/logo.png" alt="PSF Management" />
+          <h1 className="aero-title">PSF Management</h1>
+        </div>
 
         <div className="aero-user-area">
           <span>Welcome, {user?.name}</span>

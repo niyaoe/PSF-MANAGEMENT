@@ -5,6 +5,7 @@ import "../styles/psfEditModal.css";
 const PSFEditModal = ({ record, onClose, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
     ownerMobile: record?.ownerMobile || "",
+    pincode: record?.pincode || "",
 
     firstCallDate: record?.firstCallDate
       ? record.firstCallDate.substring(0, 10)
@@ -58,6 +59,7 @@ const PSFEditModal = ({ record, onClose, onSaveSuccess }) => {
 
     setFormData({
       ownerMobile: record.ownerMobile || "",
+      pincode: record.pincode || "",
 
       firstCallDate: record.firstCallDate
         ? record.firstCallDate.substring(0, 10)
@@ -255,6 +257,20 @@ const PSFEditModal = ({ record, onClose, onSaveSuccess }) => {
                   name="ownerMobile"
                   value={formData.ownerMobile}
                   onChange={handleChange}
+                />
+              </div>
+              {/* Pincode*/}
+
+              <div className="psf-edit-aero-field">
+                <label>Pincode</label>
+
+                <input
+                  type="text"
+                  name="pincode"
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  maxLength="6"
+                  inputMode="numeric"
                 />
               </div>
 

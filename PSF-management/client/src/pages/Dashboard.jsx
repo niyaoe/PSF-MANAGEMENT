@@ -97,6 +97,7 @@ const Dashboard = () => {
       const response = await api.get("/psf/dashboard", {
         params,
       });
+      // console.log(response.data.records);
 
       setSummary(response.data.summary);
       setRecords(response.data.records);
@@ -139,7 +140,11 @@ const Dashboard = () => {
   }, [page]);
 
   if (loading) {
-    return <h2>Loading dashboard...</h2>;
+    return (
+      <div className="eram-loading-screen">
+        <div className="eram-spinner">ERAM</div>
+      </div>
+    );
   }
 
   if (error) {
@@ -153,13 +158,13 @@ const Dashboard = () => {
       {/* <p>Accessible Branches: {branches.length}</p> */}
       {/* <button onClick={handleLogout}>Logout</button> */}
 
-      {user?.role === "admin" && (
+      {/* {user?.role === "admin" && (
         <BranchFilter
           branches={branches}
           branchId={branchId}
           setBranchId={setBranchId}
         />
-      )}
+      )} */}
 
       <DashboardFilters
         search={search}
@@ -173,6 +178,9 @@ const Dashboard = () => {
         toDate={toDate}
         setToDate={setToDate}
         onSearch={fetchDashboard}
+        branches={branches}
+        branchId={branchId}
+        setBranchId={setBranchId}
       />
 
       <div className="aero-summary-grid">
@@ -188,7 +196,13 @@ const Dashboard = () => {
         <SummaryCard title="Not Connected" value={summary.notConnected} />
         <SummaryCard title="Connected" value={summary.connected} />
       </div>
-      <PSFTable records={records} onSelectRecord={setSelectedRecord} />
+
+      <PSFTable
+        records={records}
+        onSelectRecord={setSelectedRecord}
+        page={page}
+        limit={limit}
+      />
 
       <Pagination
         page={page}
@@ -197,7 +211,7 @@ const Dashboard = () => {
           setPage(newPage);
         }}
       />
-      
+
       <PSFEditModal
         record={selectedRecord}
         onClose={() => {
