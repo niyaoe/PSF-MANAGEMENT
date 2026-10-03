@@ -47,6 +47,12 @@ const getPSFRecords = async (req, res) => {
             $options: "i",
           },
         },
+        {
+          ownerMobile: {
+            $regex: search,
+            $options: "i",
+          },
+        },
       ];
     }
 
@@ -247,6 +253,12 @@ const getPSFDashboard = async (req, res) => {
             $options: "i",
           },
         },
+        {
+          ownerMobile: {
+            $regex: search,
+            $options: "i",
+          },
+        },
       ];
     }
 
@@ -424,8 +436,7 @@ const getPSFDashboard = async (req, res) => {
       (record) => !record.firstCallDate,
     ).length;
 
-    const connectedRecords =
-    totalRecords - notConnectedRecords;
+    const connectedRecords = totalRecords - notConnectedRecords;
 
     const totalPages = Math.ceil(totalRecords / recordsPerPage);
 
@@ -437,7 +448,7 @@ const getPSFDashboard = async (req, res) => {
         openComplaints,
         closedComplaints,
         notConnected: notConnectedRecords,
-        connected: connectedRecords
+        connected: connectedRecords,
       },
 
       pagination: {
