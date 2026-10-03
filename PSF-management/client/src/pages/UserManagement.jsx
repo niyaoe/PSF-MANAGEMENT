@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import BackButton from "../components/BackButton";
+import "../styles/userManagement.css";
 
 const UserManagement = () => {
   const [branches, setBranches] = useState([]);
@@ -86,21 +88,25 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="aero-page">
-      <div className="aero-page-header">
-        <h1 className="aero-page-title">User Management</h1>
+    <div className="user-aero-page">
+      <div className="user-aero-header">
+        <BackButton className="user-aero-back-button" />
+        <div className="user-aero-header-content">
+          <h1 className="user-aero-title">User Management</h1>
 
-        <p className="aero-page-subtitle">
-          Create users and manage their branch assignments
-        </p>
+          <p className="user-aero-subtitle">
+            Create users and manage their branch assignments
+          </p>
+        </div>
       </div>
+      {message && <p className="aero-message">{message}</p>}
 
       {/* Create User */}
-      <div className="aero-panel">
-        <h2 className="aero-panel-title">Create User</h2>
+      <div className="user-aero-panel">
+        <h2 className="user-aero-panel-title">Create User</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="aero-form-group">
+        <form className="user-aero-create-form" onSubmit={handleSubmit}>
+          <div className="user-aero-form-group">
             <label>Name</label>
 
             <input
@@ -113,7 +119,7 @@ const UserManagement = () => {
             />
           </div>
 
-          <div className="aero-form-group">
+          <div className="user-aero-form-group">
             <label>Email</label>
 
             <input
@@ -126,7 +132,7 @@ const UserManagement = () => {
             />
           </div>
 
-          <div className="aero-form-group">
+          <div className="user-aero-form-group">
             <label>Password</label>
 
             <input
@@ -139,7 +145,7 @@ const UserManagement = () => {
             />
           </div>
 
-          <div className="aero-form-group">
+          <div className="user-aero-form-group">
             <label>Role</label>
 
             <select
@@ -154,10 +160,11 @@ const UserManagement = () => {
             </select>
           </div>
 
-          <div className="aero-form-group">
+          <div className="user-aero-form-group user-aero-branch-group">
             <label>Branches</label>
 
             <select
+              className="user-aero-branch-select"
               multiple
               value={selectedBranches}
               onChange={handleBranchChange}
@@ -170,30 +177,35 @@ const UserManagement = () => {
               ))}
             </select>
 
-            <p className="aero-help-text">
+            <p className="user-aero-help">
               Hold Ctrl and select multiple branches.
             </p>
           </div>
 
-          <button className="aero-button" type="submit" disabled={loading}>
+          <button
+            className="user-aero-create-button"
+            type="submit"
+            disabled={loading}
+          >
             {loading ? "Creating..." : "Create User"}
           </button>
         </form>
       </div>
+      
 
       {/* Users List */}
-      <div className="aero-panel">
-        {message && <p className="aero-message">{message}</p>}
+      <div className="user-aero-panel">
+        
 
-        <h2 className="aero-panel-title">Users</h2>
+        <h2 className="user-aero-panel-title">Users</h2>
 
         {usersLoading ? (
           <p>Loading users...</p>
         ) : users.length === 0 ? (
           <p>No users found.</p>
         ) : (
-          <div className="aero-table-wrapper">
-            <table className="aero-table">
+          <div className="user-aero-table-wrapper">
+            <table className="user-aero-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -222,7 +234,7 @@ const UserManagement = () => {
 
                     <td>
                       <button
-                        className="aero-button"
+                        className="user-aero-edit-button"
                         type="button"
                         onClick={() => {
                           setSelectedUser(user);
@@ -245,14 +257,14 @@ const UserManagement = () => {
 
       {/* Edit Branches Modal */}
       {selectedUser && (
-        <div className="aero-modal-overlay">
-          <div className="aero-modal">
+        <div className="user-aero-modal-overlay">
+          <div className="user-aero-modal">
             {/* Aero Window Title Bar */}
-            <div className="aero-modal-titlebar">
-              <div className="aero-modal-title">Edit User Branches</div>
+            <div className="user-aero-modal-titlebar">
+              <div className="user-aero-modal-title">Edit User Branches</div>
 
               <button
-                className="aero-modal-close"
+                className="user-aero-modal-close"
                 type="button"
                 onClick={() => {
                   setSelectedUser(null);
@@ -265,17 +277,18 @@ const UserManagement = () => {
             </div>
 
             {/* Modal Content */}
-            <div className="aero-modal-content">
+            <div className="user-aero-modal-content">
               <h2>Edit Branches</h2>
 
               <p>
                 User: <strong>{selectedUser.name}</strong>
               </p>
 
-              <div className="aero-form-group">
+              <div className="user-aero-form-group">
                 <label>Select Branches</label>
 
                 <select
+                  className="user-aero-modal-select"
                   multiple
                   value={selectedUserBranches}
                   onChange={(event) => {
@@ -297,14 +310,14 @@ const UserManagement = () => {
                   ))}
                 </select>
 
-                <p className="aero-help-text">
+                <p className="user-aero-help">
                   Hold Ctrl and select multiple branches.
                 </p>
               </div>
 
-              <div className="aero-modal-actions">
+              <div className="user-aero-modal-actions">
                 <button
-                  className="aero-button"
+                  className="user-aero-modal-button"
                   type="button"
                   disabled={selectedUserBranches.length === 0}
                   onClick={async () => {

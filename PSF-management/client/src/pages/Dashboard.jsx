@@ -191,10 +191,13 @@ const Dashboard = () => {
       <PSFTable records={records} onSelectRecord={setSelectedRecord} />
 
       <Pagination
-        page={pagination.page}
+        page={page}
         totalPages={pagination.totalPages}
-        onPageChange={setPage}
+        onPageChange={(newPage) => {
+          setPage(newPage);
+        }}
       />
+      
       <PSFEditModal
         record={selectedRecord}
         onClose={() => {

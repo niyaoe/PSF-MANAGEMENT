@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../services/api";
 import "../styles/excelImport.css";
+import BackButton from "../components/BackButton";
 
 const ExcelImport = () => {
   const [file, setFile] = useState(null);
@@ -47,12 +48,16 @@ const ExcelImport = () => {
 
   return (
     <div className="excel-aero-page">
+      
       <div className="excel-aero-header">
-        <h1 className="excel-aero-title">Excel Import</h1>
+        <BackButton className="excel-aero-back-button" />
+        <div className="excel-aero-header-content">
+          <h1 className="excel-aero-title">Excel Import</h1>
 
-        <p className="excel-aero-subtitle">
-          Import PSF records from an Excel file
-        </p>
+          <p className="excel-aero-subtitle">
+            Import PSF records from an Excel file
+          </p>
+        </div>
       </div>
 
       <div className="excel-aero-panel">

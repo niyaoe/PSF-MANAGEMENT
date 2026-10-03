@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
+  // const location = useLocation();
 
   const storedUser = localStorage.getItem("user");
 
@@ -44,7 +45,21 @@ const DashboardLayout = ({ children }) => {
         )}
       </nav>
 
-      <main className="aero-main">{children}</main>
+      <main className="aero-main">
+        {/* {location.pathname !== "/dashboard" && (
+          <button
+            className="aero-back-button"
+            type="button"
+            onClick={() => {
+              navigate(-1);
+            }}
+          >
+            ← Back
+          </button>
+        )} */}
+
+        {children}
+      </main>
     </div>
   );
 };
