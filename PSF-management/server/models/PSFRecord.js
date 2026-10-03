@@ -171,6 +171,12 @@ const psfRecordSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    
+    pincode: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   {
     timestamps: true,
@@ -191,9 +197,6 @@ psfRecordSchema.index({
   roNumber: 1,
 });
 
-psfRecordSchema.index(
-    { branchId: 1, roNumber: 1 },
-    { unique: true }
-);
+psfRecordSchema.index({ branchId: 1, roNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model("PSFRecord", psfRecordSchema);

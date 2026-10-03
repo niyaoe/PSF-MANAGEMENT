@@ -177,6 +177,7 @@ const updatePSFRecord = async (req, res) => {
       "messageToBeSent",
       "segment",
       "ownerMobile",
+      "pincode",
     ];
 
     editableFields.forEach((field) => {
