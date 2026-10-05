@@ -32,7 +32,7 @@ const DashboardFilters = ({
 
         <input
           type="text"
-          placeholder="RO, customer, registration, chassis..."
+          placeholder="RO, registration, chassis, Name..."
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
