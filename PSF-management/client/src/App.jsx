@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UserManagement from "./pages/UserManagement";
 import BranchManagement from "./pages/BranchManagement";
 import ExcelImport from "./pages/ExcelImport";
+import UserHistory from "./pages/UserHistory";
 
 const App = () => {
   return (
@@ -40,6 +41,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <ExcelImport />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user-history"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "manager", "employee"]}>
+              <UserHistory />
             </ProtectedRoute>
           }
         />
