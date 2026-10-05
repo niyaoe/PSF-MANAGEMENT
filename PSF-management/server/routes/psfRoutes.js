@@ -3,7 +3,8 @@ const express = require("express");
 const {
     getPSFRecords,
     updatePSFRecord,
-    getPSFDashboard
+    getPSFDashboard,
+    getUserHistory,
 } = require("../controllers/psfController");
 
 
@@ -31,6 +32,13 @@ router.put(
     protect,
     authorizeRoles("admin", "employee"), // "manager" 
     updatePSFRecord
+);
+
+router.get(
+  "/user-history",
+  protect,
+  authorizeRoles("admin", "manager", "employee"),
+  getUserHistory
 );
 
 module.exports = router;

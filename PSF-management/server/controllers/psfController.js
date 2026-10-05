@@ -187,6 +187,7 @@ const updatePSFRecord = async (req, res) => {
     });
 
     record.updatedBy = req.user.userId;
+    record.callBy = req.user.userId;
 
     await record.save();
 
@@ -471,8 +472,306 @@ const getPSFDashboard = async (req, res) => {
   }
 };
 
+const getUserHistory = async (req, res) => {
+  try {
+    const { date, branchId } = req.query;
+
+    /*
+     * Selected date
+     *
+     * If no date is provided, use today.
+     */
+
+    const selectedDate = date ? new Date(date) : new Date();
+
+    if (isNaN(selectedDate.getTime())) {
+      return res.status(400).json({
+        message: "Invalid date",
+      });
+    }
+
+    /*
+     * Start and end of selected date
+     */
+
+    const selectedDayStart = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+    );
+
+    const selectedDayEnd = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate() + 1,
+    );
+
+    /*
+     * Start and end of selected month
+     */
+
+    const monthStart = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      1,
+    );
+
+    const nextMonthStart = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() + 1,
+      1,
+    );
+
+    /*
+     * User access
+     */
+
+    const User = require("../models/User");
+
+    let userFilter = {
+      role: "employee",
+      isActive: true,
+    };
+
+    /*
+     * Admin
+     *
+     * Admin can see every employee.
+     *
+     * Admin can optionally filter
+     * employees by branch.
+     */
+
+    if (req.user.role === "admin") {
+      if (branchId) {
+        if (!mongoose.isValidObjectId(branchId)) {
+          return res.status(400).json({
+            message: "Invalid branch ID",
+          });
+        }
+
+        userFilter.branchIds = branchId;
+      }
+    } else if (req.user.role === "employee") {
+
+    /*
+     * Employee
+     *
+     * Employee can see only their
+     * own history.
+     */
+      userFilter._id = req.user.userId;
+    } else if (req.user.role === "manager") {
+
+    /*
+     * Manager
+     *
+     * Manager can see employees
+     * belonging to their assigned branches.
+     */
+      if (
+        !Array.isArray(req.user.branchIds) ||
+        req.user.branchIds.length === 0
+      ) {
+        return res.status(403).json({
+          message: "No branches assigned to this user",
+        });
+      }
+
+      userFilter.branchIds = {
+        $in: req.user.branchIds,
+      };
+    }
+
+    /*
+     * Get users
+     */
+
+    const users = await User.find(userFilter)
+      .select("name email role branchIds")
+      .populate("branchIds", "name code");
+
+    /*
+     * Get PSF records
+     *
+     * Only records that have a callBy user
+     * are relevant to User History.
+     */
+
+    const records = await PSFRecord.find({
+      callBy: {
+        $in: users.map((user) => user._id),
+      },
+    }).select(
+      "callBy branchId firstCallDate secondFollowUpDate thirdFollowUpDate",
+    );
+
+    /*
+     * Create history
+     */
+
+    const history = users.map((user) => {
+      const userId = user._id.toString();
+
+      const userRecords = records.filter(
+        (record) => record.callBy && record.callBy.toString() === userId,
+      );
+
+      let freshCallsToday = 0;
+      let freshCallsThisMonth = 0;
+
+      let followUpCallsToday = 0;
+      let followUpCallsThisMonth = 0;
+
+      userRecords.forEach((record) => {
+        /*
+         * Fresh call
+         */
+
+        if (record.firstCallDate) {
+          const freshDate = new Date(record.firstCallDate);
+
+          /*
+           * Selected date
+           */
+
+          if (freshDate >= selectedDayStart && freshDate < selectedDayEnd) {
+            freshCallsToday++;
+          }
+
+          /*
+           * Selected month
+           */
+
+          if (freshDate >= monthStart && freshDate < nextMonthStart) {
+            freshCallsThisMonth++;
+          }
+        }
+
+        /*
+         * Follow-up calls
+         */
+
+        const followUpDates = [
+          record.secondFollowUpDate,
+          record.thirdFollowUpDate,
+        ];
+
+        followUpDates.forEach((followUpDate) => {
+          if (!followUpDate) {
+            return;
+          }
+
+          const followUpDateValue = new Date(followUpDate);
+
+          /*
+           * Selected date
+           */
+
+          if (
+            followUpDateValue >= selectedDayStart &&
+            followUpDateValue < selectedDayEnd
+          ) {
+            followUpCallsToday++;
+          }
+
+          /*
+           * Selected month
+           */
+
+          if (
+            followUpDateValue >= monthStart &&
+            followUpDateValue < nextMonthStart
+          ) {
+            followUpCallsThisMonth++;
+          }
+        });
+      });
+
+      /*
+       * Total calls
+       */
+
+      const totalCallsToday = freshCallsToday + followUpCallsToday;
+
+      const totalCallsThisMonth = freshCallsThisMonth + followUpCallsThisMonth;
+
+      /*
+       * User branches
+       */
+
+      const branches = user.branchIds.map((branch) => branch.name);
+
+      return {
+        userId: user._id,
+        name: user.name,
+        branches,
+
+        freshCallsToday,
+        freshCallsThisMonth,
+
+        followUpCallsToday,
+        followUpCallsThisMonth,
+
+        totalCallsToday,
+        totalCallsThisMonth,
+      };
+    });
+
+    /*
+     * Overall summary
+     */
+
+    const summary = {
+      freshCallsToday: 0,
+      freshCallsThisMonth: 0,
+
+      followUpCallsToday: 0,
+      followUpCallsThisMonth: 0,
+
+      totalCallsToday: 0,
+      totalCallsThisMonth: 0,
+    };
+
+    history.forEach((user) => {
+      summary.freshCallsToday += user.freshCallsToday;
+
+      summary.freshCallsThisMonth += user.freshCallsThisMonth;
+
+      summary.followUpCallsToday += user.followUpCallsToday;
+
+      summary.followUpCallsThisMonth += user.followUpCallsThisMonth;
+
+      summary.totalCallsToday += user.totalCallsToday;
+
+      summary.totalCallsThisMonth += user.totalCallsThisMonth;
+    });
+
+    /*
+     * Response
+     */
+
+    res.json({
+      message: "User history fetched successfully",
+
+      selectedDate: selectedDayStart,
+
+      summary,
+
+      history,
+    });
+  } catch (error) {
+    console.error("Get user history error:", error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
 module.exports = {
   getPSFRecords,
   updatePSFRecord,
   getPSFDashboard,
+  getUserHistory,
 };
